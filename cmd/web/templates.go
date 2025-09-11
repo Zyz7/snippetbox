@@ -26,7 +26,11 @@ func humanDate(t time.Time) string {
 		return ""
 	}
 
-	return t.UTC().Format("02 Jan 2006 at 15:04")
+	loc, err := time.LoadLocation("America/Mexico_City")
+	if err != nil {
+		return t.Format("02 Jan 2006 at 15:04")
+	}
+	return t.In(loc).Format("02 Jan 2006 at 15:04")
 }
 
 var functions = template.FuncMap{
