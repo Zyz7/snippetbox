@@ -105,9 +105,9 @@ func main() {
 		message and exit
 		Note that any error returned is always non-nil
 	*/
-	//err = srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	// Ocupar el comando echo 'tls/' >> .gitignore para evitar mandar los certificados
-	err = srv.ListenAndServeTLS("../../tls/cert.pem", "../../tls/key.pem")
+	//err = srv.ListenAndServeTLS("../../tls/cert.pem", "../../tls/key.pem")
 
 	// And we also use to log any error message returned
 	logger.Error(err.Error())
