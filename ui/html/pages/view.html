@@ -1,0 +1,29 @@
+{{define "title"}}Snippet #{{.Snippet.ID}}{{end}}
+
+{{define "main"}}
+    {{with .Snippet}}
+        <div class="snippet">
+            <div class="metadata">
+                <strong>{{.Title}}</strong>
+                <span>#{{.ID}}</span>
+            </div>
+
+            <pre><code>{{.Content}}</code></pre>
+
+            <div class="metadata">
+                <time>Created: {{humanDate .Created}}</time>
+                <time>Expires: {{humanDate .Expires}}</time>
+            </div>
+        </div>
+    {{end}}
+
+            {{if .IsAuthenticated}}
+              <div class="modifications">
+                {{with .Snippet}}
+                  <a class="aleft" href="/snippet/update/{{.ID}}">Update</a>
+                  <a class="aright" href="/snippet/delete/{{.ID}}">Delete</a>
+                {{end}}
+              </div>
+            {{end}}
+        </div>
+{{end}}

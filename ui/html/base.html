@@ -1,0 +1,36 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="shortcut icon" href="../static/img/logo.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700">
+    <title>{{template "title" .}} - SnippetBox</title>
+</head>
+<body>
+    <header>
+        <h1><a href="/">SnippetBox</a></h1>
+    </header>
+
+    {{template "nav" .}}
+
+    <main>
+        {{with .Flash}}
+            <div class="flash">{{.}}</div>
+        {{end}}
+
+        <section>
+            {{template "main" .}}                         
+        </section>     
+    </main>
+
+    <footer>
+        Powered by <a href="https://go.dev/" target="_blank">Go</a> in {{.CurrentYear}}    
+    </footer>
+
+    <script src="../static/js/main.js" type="text/javascript"></script>
+</body>
+</html>
+{{end}}
