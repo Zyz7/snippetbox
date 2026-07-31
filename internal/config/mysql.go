@@ -2,6 +2,7 @@ package config
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"time"
 
@@ -19,11 +20,11 @@ func OpenDB() (*sql.DB, error) {
 	db, err := sql.Open("pgx", dsn)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error al abrir conexión en supabase: %w", err)
 	}
 
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(25)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
 	err = db.Ping()
