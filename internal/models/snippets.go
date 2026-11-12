@@ -24,11 +24,11 @@ type SnippetModel struct {
 func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
 
 	// Write the sql statement we want to execute
-	//stmt := `INSERT INTO snippets (title, content, created, expires)
-	//		VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
-
 	stmt := `INSERT INTO snippets (title, content, created, expires)
-			VALUES ($1, $2, NOW() AT TIME ZONE 'UTC', (NOW() AT TIME ZONE 'UTC') + ($3 * INTERVAL '1 day'))`
+			VALUES (?, ?, datetime('now'), datetime('now', '+' || ? || ' days'))`
+
+	//stmt := `INSERT INTO snippets (title, content, created, expires)
+	//		VALUES ($1, $2, NOW() AT TIME ZONE 'UTC', (NOW() AT TIME ZONE 'UTC') + ($3 * INTERVAL '1 day'))`
 
 	result, err := m.DB.Exec(stmt, title, content, expires)
 
@@ -53,11 +53,11 @@ func (m *SnippetModel) Get(id int) (Snippet, error) {
 	// Initialize a new zeroed Snippet struct
 	var s Snippet
 
-	//stmt := `SELECT id, title, content, created, expires FROM snippets
-	//		WHERE expires > UTC_TIMESTAMP() AND id = ?`
-
 	stmt := `SELECT id, title, content, created, expires FROM snippets
-			WHERE expires > (NOW() AT TIME ZONE 'UTC') AND id = $1`
+			WHERE expires > datetime('now') AND id = ?`
+
+	//stmt := `SELECT id, title, content, created, expires FROM snippets
+	//		WHERE expires > (NOW() AT TIME ZONE 'UTC') AND id = $1`
 
 	// Scan copy the values from each field in the snippet struct
 	err := m.DB.QueryRow(stmt, id).Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
@@ -76,11 +76,11 @@ func (m *SnippetModel) Get(id int) (Snippet, error) {
 // This will return the 10 most recently created snippets
 func (m *SnippetModel) Latest() ([]Snippet, error) {
 
-	//stmt := `SELECT id, title, content, created, expires FROM snippets
-	//		WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
-
 	stmt := `SELECT id, title, content, created, expires FROM snippets
-			WHERE expires > NOW() ORDER BY id DESC LIMIT 10`
+			WHERE expires > datetime('now') ORDER BY id DESC LIMIT 10`
+
+	//stmt := `SELECT id, title, content, created, expires FROM snippets
+	//		WHERE expires > NOW() ORDER BY id DESC LIMIT 10`
 
 	// Use to Query method on the connection pool to execute our sql statement
 	rows, err := m.DB.Query(stmt)
@@ -117,10 +117,10 @@ func (m *SnippetModel) Latest() ([]Snippet, error) {
 
 func (m *SnippetModel) Update(title string, content string, expires int, id int) error {
 
-	//stmt := "UPDATE snippets SET title = ?, content = ?, expires = DATE_ADD(created, INTERVAL ? DAY) WHERE id = ?"
+	stmt := "UPDATE snippets SET title = ?, content = ?, expires = DATE_ADD(created, INTERVAL ? DAY) WHERE id = ?"
 
-	stmt := `UPDATE snippets SET title = $1, content = $2, expires = created + ($3 * INTERVAL '1 day')
-			WHERE id = $4`
+	//stmt := `UPDATE snippets SET title = $1, content = $2, expires = created + ($3 * INTERVAL '1 day')
+	//		WHERE id = $4`
 	_, err := m.DB.Exec(stmt, title, content, expires, id)
 
 	return err
@@ -128,8 +128,8 @@ func (m *SnippetModel) Update(title string, content string, expires int, id int)
 
 func (m *SnippetModel) Delete(id int) error {
 
-	//stmt := "DELETE FROM snippets WHERE id = ?"
-	stmt := `DELETE FROM snippets WHERE id = $1`
+	stmt := "DELETE FROM snippets WHERE id = ?"
+	//stmt := `DELETE FROM snippets WHERE id = $1`
 	_, err := m.DB.Exec(stmt, id)
 
 	return err

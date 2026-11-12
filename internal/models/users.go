@@ -3,10 +3,11 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"strings"
+	//"strings"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
+	//"github.com/go-sql-driver/mysql"
+	"modernc.org/sqlite"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -38,18 +39,19 @@ func (m *UserModel) Insert(name, email, password string) error {
 		return err
 	}
 
-	//stmt := `INSERT INTO users (name, email, hashed_password, created)
-	//	VALUES(?, ?, ?, UTC_TIMESTAMP())`
 	stmt := `INSERT INTO users (name, email, hashed_password, created)
-			VALUES ($1, $2, $3, NOW())`
+		VALUES(?, ?, ?, datetime('now'))`
+	//stmt := `INSERT INTO users (name, email, hashed_password, created)
+	//		VALUES ($1, $2, $3, NOW())`
 
 	// Insert the user details and hashed password into the users table
 	_, err = m.DB.Exec(stmt, name, email, string(hashedPassword))
 	if err != nil {
-		var mySQLError *mysql.MySQLError
+		//var mySQLError *mysql.MySQLError
+		var sqliteError *sqlite.Error
 
-		if errors.As(err, &mySQLError) {
-			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "users_uc_email") {
+		if errors.As(err, &sqliteError) {
+			if sqliteError.Code() == 2067 {
 				return ErrDuplicateEmail
 			}
 		}
@@ -65,8 +67,8 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	var id int
 	var hashedPassword []byte
 
-	//stmt := "SELECT id, hashed_password FROM users WHERE email = ?"
-	stmt := `SELECT id, hashed_password FROM users WHERE email = $1`
+	stmt := "SELECT id, hashed_password FROM users WHERE email = ?"
+	//stmt := `SELECT id, hashed_password FROM users WHERE email = $1`
 
 	err := m.DB.QueryRow(stmt, email).Scan(&id, &hashedPassword)
 	if err != nil {
@@ -94,8 +96,8 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 	var exists bool
 
-	//stmt := "SELECT EXISTS(SELECT true FROM users WHERE id = ?)"
-	stmt := `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
+	stmt := "SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)"
+	//stmt := `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
 
 	err := m.DB.QueryRow(stmt, id).Scan(&exists)
 	return exists, err
@@ -105,8 +107,8 @@ func (m *UserModel) Get(id int) (User, error) {
 
 	var user User
 
-	//stmt := "SELECT id, name, email, created FROM users WHERE id = ?"
-	stmt := `SELECT id, name, email, created FROM users WHERE id = $1`
+	stmt := "SELECT id, name, email, created FROM users WHERE id = ?"
+	//stmt := `SELECT id, name, email, created FROM users WHERE id = $1`
 
 	err := m.DB.QueryRow(stmt, id).Scan(&user.ID, &user.Name, &user.Email, &user.Created)
 
@@ -125,8 +127,8 @@ func (m *UserModel) PassUpdate(id int, currentPass, newPass string) error {
 
 	var currentHashedPass []byte
 
-	//stmt := "SELECT hashed_password FROM users WHERE ID = ?"
-	stmt := `SELECT hashed_password FROM users WHERE id = $1`
+	stmt := "SELECT hashed_password FROM users WHERE ID = ?"
+	//stmt := `SELECT hashed_password FROM users WHERE id = $1`
 
 	err := m.DB.QueryRow(stmt, id).Scan(&currentHashedPass)
 	if err != nil {
@@ -147,8 +149,8 @@ func (m *UserModel) PassUpdate(id int, currentPass, newPass string) error {
 		return err
 	}
 
-	//stmt = "UPDATE users SET hashed_password = ? WHERE id = ?"
-	stmt = `UPDATE users SET hashed_password = $1 WHERE id = $2`
+	stmt = "UPDATE users SET hashed_password = ? WHERE id = ?"
+	//stmt = `UPDATE users SET hashed_password = $1 WHERE id = $2`
 
 	_, err = m.DB.Exec(stmt, string(newHashedPass), id)
 

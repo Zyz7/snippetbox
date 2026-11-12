@@ -53,7 +53,7 @@ create table sessions (
 create index sessions_expiry_idx on sessions (expiry);
 
 select * from snippets;
-select * from sesiones;
+select * from sessions;
 
 ------
 create table users (
@@ -75,3 +75,53 @@ grant select, insert, update, delete on snippetbox.* to 'web'@'localhost';
 -- mysql -D snippetbox -u web -p
 
 
+
+
+----- sqlite
+CREATE TABLE snippets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    created DATETIME NOT NULL,
+    expires DATETIME NOT NULL
+);
+
+CREATE INDEX idx_snippets_created
+ON snippets(created);
+
+INSERT INTO snippets (title, content, created, expires)
+VALUES (
+    'An old silent pond',
+    'An old silent pond...
+A frog jumps into the pond,
+splash! Silence again',
+    datetime('now'),
+    datetime('now', '+365 days')
+);
+
+INSERT INTO snippets (title, content, created, expires)
+VALUES (
+    'Over the wintry forest',
+    'Over the wintry...
+forest winds howl in a rage
+with no leaves to blow',
+    datetime('now'),
+    datetime('now', '+365 days')
+);
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    hashed_password CHAR(60) NOT NULL,
+    created DATETIME NOT NULL
+);
+
+CREATE TABLE sessions (
+    token CHAR(43) PRIMARY KEY,
+    data BLOB NOT NULL,
+    expiry TIMESTAMP NOT NULL
+);
+
+CREATE INDEX sessions_expiry_idx
+ON sessions(expiry);

@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
@@ -17,14 +17,15 @@ func OpenDB() (*sql.DB, error) {
 	dsn := os.Getenv("DSN")
 
 	//dsn := mysql + "?charset=utf8mb4&parseTime=true&loc=Local"
-	db, err := sql.Open("pgx", dsn)
+	db, err := sql.Open("sqlite", dsn)
 
 	if err != nil {
-		return nil, fmt.Errorf("Error al abrir conexión en supabase: %w", err)
+		return nil, fmt.Errorf("Error al abrir conexión en sqlite: %w", err)
 	}
 
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(5)
+	// SQLite: una conexión para evitar conflictos de escritura
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
 	err = db.Ping()
