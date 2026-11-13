@@ -12,10 +12,10 @@ import (
 
 	"time"
 
-	"github.com/alexedwards/scs/mysqlstore"
+	//"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
@@ -62,7 +62,8 @@ func main() {
 	formDecoder := form.NewDecoder()
 
 	sessionManager := scs.New()
-	sessionManager.Store = mysqlstore.New(db)
+	//sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Store = &models.SessionStore{ DB: db, }
 	sessionManager.Lifetime = 12 * time.Hour
 	// Make sure that the Secure attribute is set for https connection
 	sessionManager.Cookie.Secure = true

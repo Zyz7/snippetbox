@@ -32,6 +32,12 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 	)
 
 	app.logger.Error(err.Error(), "method", method, "uri", uri)
+	app.logger.Error(
+    err.Error(),
+    "method", method,
+    "uri", uri,
+    "trace", trace,
+)
 
 	if app.debug {
 		body := fmt.Sprintf("%s\n%s", err, trace)
